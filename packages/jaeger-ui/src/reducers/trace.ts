@@ -73,7 +73,8 @@ function fetchMultipleTracesDone(state: TraceState, { payload }: any): TraceStat
     payload.errors.forEach((err: any) => {
       const { msg, traceID } = err;
       const error = new Error(`Error: ${msg} - ${traceID}`);
-      traces[traceID] = { error, id: traceID, state: fetchedState.ERROR };
+      const id = traceID.replace(/^0+/, '');
+      traces[id] = { error, id, state: fetchedState.ERROR };
     });
   }
   return { ...state, traces };

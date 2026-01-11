@@ -120,6 +120,25 @@ describe('fetch multiple traces', () => {
       expect(state.traces).toEqual(outcome);
     });
 
+    it('strips leading zeros from error traceID to match requested ID', () => {
+      const msg = 'trace not found';
+      const requestedId = '123123';
+      const returnedTraceID = '0000000000123123';
+      const traces = { [requestedId]: { id: requestedId, state: fetchedState.LOADING } };
+      const state = traceReducer(
+        { traces },
+        {
+          type: `${jaegerApiActions.fetchMultipleTraces}${ACTION_POSTFIX_FULFILLED}`,
+          payload: { data: [], errors: [{ msg, traceID: returnedTraceID }] },
+        }
+      );
+      expect(state.traces[requestedId]).toEqual({
+        id: requestedId,
+        error: expect.any(Error),
+        state: fetchedState.ERROR,
+      });
+    });
+
     it('process multiple references', () => {
       const multiRefTrace = traceGenerator.trace({ numberOfSpans: 7, maxDepth: 3, spansPerLevel: 4 });
       const { traceID, spanID: rootSpanId } = multiRefTrace.spans[0];
